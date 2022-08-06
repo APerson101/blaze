@@ -1,12 +1,12 @@
 import 'dart:ui';
 
+import 'package:blaze/views/homepage/withdrawfromaccount.dart';
 import 'package:blaze/views/login/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'views/homepage/homepageview.dart';
-import 'views/homepage/homeviews/dashboardview.dart';
 
 void main() {
   runApp(ProviderScope(child: MyApp()));
@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
+      debugShowCheckedModeBanner: false,
       routeInformationProvider: _router.routeInformationProvider,
       routeInformationParser: _router.routeInformationParser,
       routerDelegate: _router.routerDelegate,
@@ -40,6 +41,12 @@ class MyApp extends StatelessWidget {
           return const HomePageView();
         },
       ),
+      GoRoute(
+        path: '/withdraw',
+        builder: (BuildContext context, GoRouterState state) {
+          return const WithDrawFromAccount();
+        },
+      ),
     ],
   );
 }
@@ -49,8 +56,8 @@ class BackDrop extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: Scaffold(body: _ButtonBar()),
+    return MaterialApp(
+      home: Scaffold(body: test2()),
     );
   }
 
@@ -92,39 +99,6 @@ class BackDrop extends StatelessWidget {
             ),
           ),
         ),
-      ],
-    );
-  }
-}
-
-class _ButtonBar extends StatelessWidget {
-  const _ButtonBar({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return ButtonBar(
-      alignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        RoundedButton(
-            text: 'receive',
-            color: Colors.brown.shade400,
-            onPressed: () {},
-            icon: Icons.call_received),
-        RoundedButton(
-            onPressed: () {},
-            text: 'send',
-            color: Colors.blue.shade400,
-            icon: Icons.upload),
-        RoundedButton(
-            onPressed: () {},
-            text: 'bills',
-            color: Colors.orange.shade400,
-            icon: Icons.blinds),
-        RoundedButton(
-            onPressed: () {},
-            text: 'pay',
-            color: Colors.green.shade400,
-            icon: Icons.wallet),
       ],
     );
   }

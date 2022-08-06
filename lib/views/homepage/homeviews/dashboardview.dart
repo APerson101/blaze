@@ -5,6 +5,7 @@ import 'package:blaze/models/activitymodel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 class DashboardView extends StatelessWidget {
   const DashboardView({Key? key}) : super(key: key);
@@ -142,7 +143,9 @@ class _Card extends ConsumerWidget {
                           Text("Fund")
                         ])),
                     ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          GoRouter.of(context).push('/withdraw');
+                        },
                         style: ElevatedButton.styleFrom(
                           primary: Colors.pink,
                           shape: RoundedRectangleBorder(
@@ -170,7 +173,7 @@ class _BottomSheet extends ConsumerWidget {
           topLeft: Radius.circular(30), topRight: Radius.circular(30)),
       child: SizedBox(
           child: DecoratedBox(
-        decoration: const BoxDecoration(color: Colors.green),
+        decoration: const BoxDecoration(color: Colors.white),
         child:
             // _ButtonBar()
             Column(
@@ -287,16 +290,21 @@ class _Activity extends ConsumerWidget {
       return SingleChildScrollView(
           child: Column(
               children: list
-                  .map((e) => ListTile(
-                        tileColor: Colors.blueAccent.shade100,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(15)),
-                        leading: e.type == 'Debit'
-                            ? const Icon(Icons.upload)
-                            : const Icon(Icons.download),
-                        trailing: Text(e.amount.toString()),
-                        title: Text(e.name),
-                        subtitle: Text(e.date.toLocal().toString()),
+                  .map((e) => Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Material(
+                          color: Colors.blueAccent.shade100,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(15)),
+                          child: ListTile(
+                            leading: e.type == 'Debit'
+                                ? const Icon(Icons.upload)
+                                : const Icon(Icons.download),
+                            trailing: Text(e.amount.toString()),
+                            title: Text(e.name),
+                            subtitle: Text(e.date.toLocal().toString()),
+                          ),
+                        ),
                       ))
                   .toList()));
     }, error: (Object error, StackTrace? stackTrace) {

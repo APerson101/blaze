@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:blaze/models/accountmodel.dart';
 import 'package:blaze/views/homepage/withdrawalstatus.dart';
 import 'package:blaze/views/homepage/withdrawfromaccount.dart';
-import 'package:blaze/views/login/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -34,7 +33,7 @@ class MyApp extends StatelessWidget {
       GoRoute(
         path: '/',
         builder: (BuildContext context, GoRouterState state) {
-          return const LoginPageView();
+          return const HomePageView();
         },
       ),
       GoRoute(

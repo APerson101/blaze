@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:badges/badges.dart';
 import 'package:blaze/models/accountmodel.dart';
 import 'package:blaze/models/activitymodel.dart';
+import 'package:blaze/views/homepage/widgets/sendfunds.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -243,7 +244,10 @@ class _ButtonBar extends StatelessWidget {
             onPressed: () {},
             icon: Icons.call_received),
         RoundedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => const SendFundsView()));
+            },
             text: 'send',
             color: Colors.blue.shade400,
             icon: Icons.upload),
@@ -254,8 +258,8 @@ class _ButtonBar extends StatelessWidget {
             icon: Icons.blinds),
         RoundedButton(
             onPressed: () {
-              Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (context) => QrCodeView()));
+              Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const QrCodeView()));
             },
             text: 'pay',
             color: Colors.green.shade400,
@@ -355,6 +359,8 @@ final getAccount = FutureProvider((ref) async {
 });
 
 class QrCodeView extends ConsumerWidget {
+  const QrCodeView({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Material(

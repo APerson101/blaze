@@ -1,11 +1,14 @@
 import 'dart:ui';
 
 import 'package:badges/badges.dart';
+import 'package:blaze/models/accountmodel.dart';
 import 'package:blaze/models/activitymodel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import '../fundaccount.dart';
 
 class DashboardView extends StatelessWidget {
   const DashboardView({Key? key}) : super(key: key);
@@ -13,7 +16,7 @@ class DashboardView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Stack(children: [
-      const Positioned(
+      Positioned(
         top: 0,
         left: 0,
         right: 0,
@@ -57,8 +60,8 @@ class _TopBar extends ConsumerWidget {
 }
 
 class _Card extends ConsumerWidget {
-  const _Card({Key? key}) : super(key: key);
-
+  _Card({Key? key}) : super(key: key);
+  AccountModel? accountModel;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return SizedBox(
@@ -92,35 +95,45 @@ class _Card extends ConsumerWidget {
                           ],
                         )),
                         alignment: Alignment.center,
-                        child: Column(
-                          children: const [
-                            Expanded(
-                              child: ListTile(
-                                leading: FlutterLogo(),
-                                trailing: Text("VISA"),
-                              ),
-                            ),
-                            Expanded(
-                              child: ListTile(
-                                leading: Text("N 54, 5454"),
-                              ),
-                            ),
-                            Expanded(
-                              child: ListTile(
-                                title: Text(
-                                  "1234 1234 1234 1234",
-                                  textAlign: TextAlign.justify,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: ListTile(
-                                leading: Text("EXP 12/25"),
-                                trailing: Text("CVV 442"),
-                              ),
-                            ),
-                          ],
-                        ))),
+                        child: ref.watch(getAccount).when(
+                            data: (account) {
+                              accountModel = account;
+                              return Column(
+                                children: const [
+                                  Expanded(
+                                    child: ListTile(
+                                      leading: FlutterLogo(),
+                                      trailing: Text("VISA"),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: ListTile(
+                                      leading: Text("N 54, 5454"),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: ListTile(
+                                      title: Text(
+                                        "1234 1234 1234 1234",
+                                        textAlign: TextAlign.justify,
+                                      ),
+                                    ),
+                                  ),
+                                  Expanded(
+                                    child: ListTile(
+                                      leading: Text("EXP 12/25"),
+                                      trailing: Text("CVV 442"),
+                                    ),
+                                  ),
+                                ],
+                              );
+                            },
+                            error: (err, stc) {
+                              return const Center(
+                                  child: Text("Failed to load"));
+                            },
+                            loading: () =>
+                                const CircularProgressIndicator.adaptive()))),
               ),
             ),
             Positioned(
@@ -131,7 +144,11 @@ class _Card extends ConsumerWidget {
                   alignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          // GoRouter.of(context).push('/fund');
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => FundAccountView()));
+                        },
                         style: ElevatedButton.styleFrom(
                           primary: Colors.purple,
                           shape: RoundedRectangleBorder(
@@ -144,7 +161,8 @@ class _Card extends ConsumerWidget {
                         ])),
                     ElevatedButton(
                         onPressed: () {
-                          GoRouter.of(context).push('/withdraw');
+                          GoRouter.of(context)
+                              .push('/withdraw', extra: accountModel);
                         },
                         style: ElevatedButton.styleFrom(
                           primary: Colors.pink,
@@ -325,4 +343,8 @@ final activityProvider = FutureProvider((ref) async {
           amount: 5000,
           name: "Muhammad Sani",
           date: DateTime.now()));
+});
+
+final getAccount = FutureProvider((ref) async {
+  return AccountModel(balance: 500000.0);
 });

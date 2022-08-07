@@ -52,6 +52,8 @@ dependencies:
   modal_bottom_sheet: ^2.1.0
   flutter_credit_card: ^3.0.2
   pinput: ^2.2.12
+  qr_flutter: ^4.0.0
+  qr_code_scanner: ^1.0.0
 
 dev_dependencies:
   flutter_test:

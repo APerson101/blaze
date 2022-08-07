@@ -25,6 +25,9 @@ class CreditCardFormView extends ConsumerWidget {
     return Material(
       child: Column(
         children: [
+          const ListTile(
+              leading: BackButton(),
+              title: Align(child: Text("Add card information"))),
           const Gap(20),
           CreditCardWidget(
               // glassmorphismConfig: Glassmorphism.defaultConfig(),
@@ -109,7 +112,8 @@ class CreditCardFormView extends ConsumerWidget {
                         name: ref.watch(name)))
                     : null;
               },
-              child: const Text("Continue"))
+              child: const Text("Continue")),
+          const Gap(50)
         ],
       ),
     );

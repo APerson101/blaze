@@ -7,6 +7,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import '../fundaccount.dart';
 
@@ -147,7 +149,7 @@ class _Card extends ConsumerWidget {
                         onPressed: () {
                           // GoRouter.of(context).push('/fund');
                           Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => FundAccountView()));
+                              builder: (context) => const FundAccountView()));
                         },
                         style: ElevatedButton.styleFrom(
                           primary: Colors.purple,
@@ -251,7 +253,10 @@ class _ButtonBar extends StatelessWidget {
             color: Colors.orange.shade400,
             icon: Icons.blinds),
         RoundedButton(
-            onPressed: () {},
+            onPressed: () {
+              Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => QrCodeView()));
+            },
             text: 'pay',
             color: Colors.green.shade400,
             icon: Icons.wallet),
@@ -348,3 +353,99 @@ final activityProvider = FutureProvider((ref) async {
 final getAccount = FutureProvider((ref) async {
   return AccountModel(balance: 500000.0);
 });
+
+class QrCodeView extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Material(
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height,
+        child: Column(
+          children: [
+            const ListTile(
+              leading: BackButton(),
+              title: Align(child: Text("Qr Code payment")),
+            ),
+            DefaultTabController(
+                length: 2,
+                child: Expanded(
+                  child: Column(children: [
+                    const TabBar(
+                        unselectedLabelColor: Colors.grey,
+                        labelColor: Colors.black,
+                        tabs: [
+                          Tab(
+                            text: 'QrCode Image',
+                          ),
+                          Tab(
+                            text: 'Scan Qrcode',
+                          )
+                        ]),
+                    Expanded(
+                        child: TabBarView(
+                            children: [const _QrCodeWidget(), _CameraWidget()]))
+                  ]),
+                ))
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _QrCodeWidget extends StatelessWidget {
+  const _QrCodeWidget({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Center(
+          child: QrImage(
+              data: "the user details go here",
+              version: QrVersions.auto,
+              size: 350),
+        ),
+      ),
+    );
+  }
+}
+
+class _CameraWidget extends ConsumerWidget {
+  _CameraWidget({Key? key}) : super(key: key);
+  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    var scanArea = (MediaQuery.of(context).size.width < 400 ||
+            MediaQuery.of(context).size.height < 400)
+        ? 350.0
+        : 500.0;
+    return QRView(
+      key: qrKey,
+      overlay: QrScannerOverlayShape(
+          borderColor: Colors.blue,
+          borderRadius: 10,
+          borderLength: 30,
+          borderWidth: 10,
+          cutOutSize: scanArea),
+      onQRViewCreated: (controller) {
+        ref.watch(_qrcontroller.notifier).state = controller;
+        controller.scannedDataStream.listen((event) {
+          ref.watch(_resultQrScan.notifier).state = event;
+        });
+      },
+      onPermissionSet: (ctrl, p) => (context, ctrl, p) {
+        debugPrint('${DateTime.now().toIso8601String()}_onPermissionSet $p');
+        if (!p) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('no Permission')),
+          );
+        }
+      },
+    );
+  }
+}
+
+final _resultQrScan = StateProvider<Barcode?>((ref) => null);
+final _qrcontroller = StateProvider<QRViewController?>((ref) => null);

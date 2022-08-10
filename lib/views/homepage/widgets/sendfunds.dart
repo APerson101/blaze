@@ -1,3 +1,4 @@
+import 'package:blaze/views/homepage/homepageview.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -11,34 +12,44 @@ class SendFundsView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Material(
-      child: SingleChildScrollView(
-          child: Column(children: [
-        const ListTile(leading: BackButton(), title: Text("Send Funds")),
-        const Gap(20),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-              onChanged: (amount) => ref.watch(_amountToSend.notifier).state =
-                  double.parse(amount),
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                  hintText: 'Enter Amount',
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15)))),
-        ),
-        const Gap(20),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: TextField(
-              onChanged: (receiver) =>
-                  ref.watch(_receiverAlias.notifier).state = receiver,
-              decoration: InputDecoration(
-                  hintText: 'Enter Receiver alias',
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(15)))),
-        ),
-        const Gap(20),
-        ElevatedButton(
+      child: SafeArea(
+        child: SingleChildScrollView(
+            child: Column(children: [
+          const ListTile(leading: BackButton(), title: Text("Send Funds")),
+          const Gap(20),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+                onChanged: (amount) => ref.watch(_amountToSend.notifier).state =
+                    double.parse(amount),
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                    hintText: 'Enter Amount',
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15)))),
+          ),
+          const Gap(20),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+                onChanged: (receiver) =>
+                    ref.watch(_receiverAlias.notifier).state = receiver,
+                decoration: InputDecoration(
+                    hintText: 'Enter Receiver alias',
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15)))),
+          ),
+          ElevatedButton(
+              onPressed: () {
+                // ref
+                //     .watch(apiHelper)
+                //     .sendFunds(username, password, email, amount, receiver);
+              },
+              child: Text("Send")),
+          const Gap(20),
+          Text('or send to contact'),
+          const Gap(20),
+          ElevatedButton(
             onPressed: () async {
               if (!kIsWeb) {
                 if ((await Permission.contacts.status).isDenied) {
@@ -74,8 +85,15 @@ class SendFundsView extends ConsumerWidget {
                 }
               }
             },
-            child: const Text("select contact"))
-      ])),
+            child: const Text(
+              "select contact",
+              style: TextStyle(fontSize: 20),
+            ),
+            style: ElevatedButton.styleFrom(
+                primary: Colors.green, minimumSize: Size(250, 50)),
+          )
+        ])),
+      ),
     );
   }
 }

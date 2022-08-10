@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:badges/badges.dart';
 import 'package:blaze/models/accountmodel.dart';
 import 'package:blaze/models/activitymodel.dart';
+import 'package:blaze/views/homepage/homeviews/providers.dart';
 import 'package:blaze/views/homepage/widgets/sendfunds.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,29 +15,31 @@ import 'package:qr_flutter/qr_flutter.dart';
 import '../fundaccount.dart';
 
 class DashboardView extends StatelessWidget {
-  const DashboardView({Key? key}) : super(key: key);
-
+  DashboardView({Key? key, required this.walletAlias}) : super(key: key);
+  Map<String, String> walletAlias;
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
-      Positioned(
-        top: 0,
-        left: 0,
-        right: 0,
-        child: _Card(),
-      ),
-      const Positioned(
-        top: 5,
-        left: 0,
-        right: 0,
-        child: _TopBar(),
-      ),
-      Positioned(
-          top: MediaQuery.of(context).size.height * 0.34,
+    return SafeArea(
+      child: Stack(children: [
+        Positioned(
+          top: 0,
           left: 0,
           right: 0,
-          child: const _BottomSheet()),
-    ]);
+          child: _Card(wallet: walletAlias),
+        ),
+        const Positioned(
+          top: 5,
+          left: 0,
+          right: 0,
+          child: _TopBar(),
+        ),
+        Positioned(
+            top: MediaQuery.of(context).size.height * 0.34,
+            left: 0,
+            right: 0,
+            child: const _BottomSheet()),
+      ]),
+    );
   }
 }
 
@@ -63,124 +66,134 @@ class _TopBar extends ConsumerWidget {
 }
 
 class _Card extends ConsumerWidget {
-  _Card({Key? key}) : super(key: key);
+  _Card({Key? key, required this.wallet}) : super(key: key);
   AccountModel? accountModel;
+  Map<String, String> wallet;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return SizedBox(
-        height: MediaQuery.of(context).size.height * 0.37,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            DecoratedBox(
-              decoration: BoxDecoration(
-                // image: DecorationImage(
-                //     fit: BoxFit.fill, image: AssetImage('assets/images/i.png')),
-                gradient: LinearGradient(
-                    colors: [Colors.pink.shade100, Colors.purple.shade100]),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(
-                  left: 20, right: 20, top: 50.0, bottom: 85),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                    child: Container(
-                        decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.white.withOpacity(0.26),
-                            Colors.white.withOpacity(0.15),
-                          ],
-                        )),
-                        alignment: Alignment.center,
-                        child: ref.watch(getAccount).when(
-                            data: (account) {
-                              accountModel = account;
-                              return Column(
-                                children: const [
-                                  Expanded(
-                                    child: ListTile(
-                                      leading: FlutterLogo(),
-                                      trailing: Text("VISA"),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: ListTile(
-                                      leading: Text("N 54, 5454"),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: ListTile(
-                                      title: Text(
-                                        "1234 1234 1234 1234",
-                                        textAlign: TextAlign.justify,
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    child: ListTile(
-                                      leading: Text("EXP 12/25"),
-                                      trailing: Text("CVV 442"),
-                                    ),
-                                  ),
+    return ref.watch(loadCard(wallet['username']!)).when(
+        error: (error, st) => const Center(child: Text("Error")),
+        loading: () =>
+            const Center(child: CircularProgressIndicator.adaptive()),
+        data: (data) {
+          return SizedBox(
+              height: MediaQuery.of(context).size.height * 0.37,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      // image: DecorationImage(
+                      //     fit: BoxFit.fill, image: AssetImage('assets/images/i.png')),
+                      gradient: LinearGradient(colors: [
+                        Colors.grey,
+                        Color.fromARGB(255, 198, 192, 199)
+                      ]),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                        left: 20, right: 20, top: 50.0, bottom: 85),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                          child: Container(
+                              decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                                colors: [
+                                  Colors.white.withOpacity(0.26),
+                                  Colors.white.withOpacity(0.15),
                                 ],
-                              );
-                            },
-                            error: (err, stc) {
-                              return const Center(
-                                  child: Text("Failed to load"));
-                            },
-                            loading: () =>
-                                const CircularProgressIndicator.adaptive()))),
-              ),
-            ),
-            Positioned(
-                bottom: 25,
-                left: 0,
-                right: 0,
-                child: ButtonBar(
-                  alignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    ElevatedButton(
-                        onPressed: () {
-                          // GoRouter.of(context).push('/fund');
-                          Navigator.of(context).push(MaterialPageRoute(
-                              builder: (context) => const FundAccountView()));
-                        },
-                        style: ElevatedButton.styleFrom(
-                          primary: Colors.purple,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20)),
-                          minimumSize: const Size(150, 50),
-                        ),
-                        child: Row(children: const [
-                          Icon(Icons.upgrade_outlined),
-                          Text("Fund")
-                        ])),
-                    ElevatedButton(
-                        onPressed: () {
-                          GoRouter.of(context)
-                              .push('/withdraw', extra: accountModel);
-                        },
-                        style: ElevatedButton.styleFrom(
-                          primary: Colors.pink,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20)),
-                          minimumSize: const Size(150, 50),
-                        ),
-                        child: Row(children: const [
-                          Icon(Icons.download),
-                          Text("Withdraw")
-                        ]))
-                  ],
-                ))
-          ],
-        ));
+                              )),
+                              alignment: Alignment.center,
+                              child: ref.watch(getAccount).when(
+                                  data: (account) {
+                                    accountModel = account;
+                                    return Column(
+                                      children: const [
+                                        Expanded(
+                                          child: ListTile(
+                                            leading: FlutterLogo(),
+                                            trailing: Text("VISA"),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: ListTile(
+                                            leading: Text("N 54, 5454"),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: ListTile(
+                                            title: Text(
+                                              "1234 1234 1234 1234",
+                                              textAlign: TextAlign.justify,
+                                            ),
+                                          ),
+                                        ),
+                                        Expanded(
+                                          child: ListTile(
+                                            leading: Text("EXP 12/25"),
+                                            trailing: Text("CVV 442"),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                  error: (err, stc) {
+                                    return const Center(
+                                        child: Text("Failed to load"));
+                                  },
+                                  loading: () => const CircularProgressIndicator
+                                      .adaptive()))),
+                    ),
+                  ),
+                  Positioned(
+                      bottom: 25,
+                      left: 0,
+                      right: 0,
+                      child: ButtonBar(
+                        alignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                              onPressed: () {
+                                // GoRouter.of(context).push('/fund');
+                                Navigator.of(context).push(MaterialPageRoute(
+                                    builder: (context) =>
+                                        const FundAccountView()));
+                              },
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.green.shade200,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),
+                                minimumSize: const Size(150, 50),
+                              ),
+                              child: Row(children: const [
+                                Icon(Icons.upgrade_outlined),
+                                Text("Fund")
+                              ])),
+                          ElevatedButton(
+                              onPressed: () {
+                                GoRouter.of(context)
+                                    .push('/withdraw', extra: accountModel);
+                              },
+                              style: ElevatedButton.styleFrom(
+                                primary: Colors.redAccent,
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20)),
+                                minimumSize: const Size(150, 50),
+                              ),
+                              child: Row(children: const [
+                                Icon(Icons.download),
+                                Text("Withdraw")
+                              ]))
+                        ],
+                      ))
+                ],
+              ));
+        });
   }
 }
 
@@ -320,7 +333,7 @@ class _Activity extends ConsumerWidget {
                   .map((e) => Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Material(
-                          color: Colors.blueAccent.shade100,
+                          color: Colors.grey,
                           shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(15)),
                           child: ListTile(

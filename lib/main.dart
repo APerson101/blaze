@@ -1,17 +1,21 @@
+import 'dart:io';
 import 'dart:ui';
 
+import 'package:blaze/helpers/apihelper.dart';
 import 'package:blaze/models/accountmodel.dart';
 import 'package:blaze/views/homepage/withdrawalstatus.dart';
 import 'package:blaze/views/homepage/withdrawfromaccount.dart';
+import 'package:blaze/views/login/login.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:uuid/uuid.dart';
 
 import 'views/homepage/homepageview.dart';
 
 void main() {
   runApp(ProviderScope(child: MyApp()));
-  // runApp(const ProviderScope(child: BackDrop()));
+  // runApp(ProviderScope(child: BackDrop()));
 }
 
 class MyApp extends StatelessWidget {
@@ -33,13 +37,18 @@ class MyApp extends StatelessWidget {
       GoRoute(
         path: '/',
         builder: (BuildContext context, GoRouterState state) {
-          return const HomePageView();
+          return const LoginPageView();
         },
       ),
       GoRoute(
         path: '/home',
         builder: (BuildContext context, GoRouterState state) {
-          return const HomePageView();
+          var map = state.extra! as Map<String, dynamic>;
+          return HomePageView(
+            username: map['username'],
+            email: map['email'],
+            password: map['password'],
+          );
         },
       ),
       GoRoute(
@@ -84,8 +93,8 @@ class MyApp extends StatelessWidget {
 }
 
 class BackDrop extends StatelessWidget {
-  const BackDrop({Key? key}) : super(key: key);
-
+  BackDrop({Key? key}) : super(key: key);
+  final APiHelper helper = APiHelper();
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -104,7 +113,35 @@ class BackDrop extends StatelessWidget {
             width: 100,
             child: BackdropFilter(
                 filter: ImageFilter.blur(sigmaX: 5, sigmaY: 6),
-                child: const Text("HELLO WORLD")))
+                child: Center(
+                  child: ElevatedButton(
+                    child: const Text("HELLO WORLD"),
+                    onPressed: () async {
+                      await helper.getUSerByAlias('@imbah.01g9vgj');
+                      // await helper.createUserAcccount({
+                      //   // "uidType": "99063757",
+                      //   "reference": 'NXG3547585H5T9069HGO',
+                      //   // "title": 'Mr',
+                      //   // 'firstName': "Farouq musa",
+                      //   // "lastName": "Froggie",
+                      //   // "userName": "testusername@cbn.gov.ng",
+                      //   // "phone": "91234587532",
+                      //   // 'emailId': "testusername@cbn.gov.ng",
+                      //   // 'postalCode': "900119",
+                      //   // 'city': "Abj",
+                      //   // 'address': "e get as e be",
+                      //   // 'countryOfResidence': "NG",
+                      //   'tier': "2",
+                      //   'accountNumber': "0985675844",
+                      //   'dateOfBirth': "31/12/1996",
+                      //   'countryOfBirth': "NG",
+                      //   'password': "1234567890877",
+                      //   'remarks': "Passed",
+                      //   // 'referralCode': "@imbah.01",
+                      // });
+                    },
+                  ),
+                )))
       ],
     );
   }

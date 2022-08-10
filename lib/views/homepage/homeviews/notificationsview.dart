@@ -5,6 +5,6 @@ class NotificationsView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Center(child: Text("Notiications"));
+    return const Center(child: Text("Passive income with blaze"));
   }
 }
